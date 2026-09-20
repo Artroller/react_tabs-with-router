@@ -9,7 +9,12 @@ import {
   NavLink,
   Navigate,
   useParams,
+  useNavigate,
 } from 'react-router-dom';
+
+import { Tabs, TabList, Tab, TabPanel } from 'react-tabs';
+
+import 'react-tabs/style/react-tabs.css';
 
 const tabs = [
   {
@@ -62,30 +67,48 @@ const HomePage = () => <h1 className="title">Home page</h1>;
 
 const TabsPage = () => {
   const { tabId } = useParams();
+  const navigate = useNavigate();
 
-  const selectedTab = tabs.find(tab => tab.id === tabId);
+  const selectedIndex = tabs.findIndex(tab => tab.id === tabId);
+
+  const handleSelect = (index: number) => {
+    navigate(`/tabs/${tabs[index].id}`);
+  };
 
   return (
     <>
       <h1 className="title">Tabs page</h1>
 
-      <div className="tabs is-boxed">
-        <ul>
+      <Tabs
+        selectedIndex={selectedIndex >= 0 ? selectedIndex : -1}
+        onSelect={handleSelect}
+      >
+        <TabList>
           {tabs.map(tab => (
-            <li
+            <Tab
               key={tab.id}
               data-cy="Tab"
               className={tab.id === tabId ? 'is-active' : ''}
             >
               <Link to={`/tabs/${tab.id}`}>{tab.title}</Link>
-            </li>
+            </Tab>
           ))}
-        </ul>
-      </div>
+        </TabList>
 
-      <div className="block" data-cy="TabContent">
-        {selectedTab ? selectedTab.content : 'Please select a tab'}
-      </div>
+        {tabs.map(tab => (
+          <TabPanel key={tab.id}>
+            <div className="block" data-cy="TabContent">
+              {tab.content}
+            </div>
+          </TabPanel>
+        ))}
+      </Tabs>
+
+      {selectedIndex === -1 && (
+        <div className="block" data-cy="TabContent">
+          {'Please select a tab'}
+        </div>
+      )}
     </>
   );
 };
